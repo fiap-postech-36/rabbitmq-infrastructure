@@ -1,6 +1,6 @@
 resource "kubernetes_deployment" "rabbitmq" {
   metadata {
-    name = "${var.project_name}"
+    name = var.project_name
     labels = {
       name = "${var.project_name}-deployment"
     }
@@ -36,7 +36,7 @@ resource "kubernetes_deployment" "rabbitmq" {
 
           resources {
             limits = {
-              cpu    = "500m"
+              cpu = "500m"
             }
             requests = {
               cpu = "10m"
@@ -58,12 +58,12 @@ resource "kubernetes_service" "LoadBalancer" {
     }
     port {
       name        = "amqp"
-      port = 5672
+      port        = 5672
       target_port = 5672
     }
     port {
-      name  = "management"
-      port  = 80
+      name        = "management"
+      port        = 80
       target_port = 15672
     }
     type = "LoadBalancer"
