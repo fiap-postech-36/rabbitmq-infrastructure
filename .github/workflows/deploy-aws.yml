@@ -1,0 +1,50 @@
+name: Deploy infra on AWS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  create_infrastructure:
+    name: Create Infrastructure on AWS
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
+      RABBITMQ_DEFAULT_USER: ${{ secrets.RABBITMQ_DEFAULT_USER }}  # Usuario do RabbitMQ
+      RABBITMQ_DEFAULT_PASS: ${{ secrets.RABBITMQ_DEFAULT_PASS }}  # Senha do RabbitMQ
+  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+    
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Terraform Setup
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check envs/prod
+        continue-on-error: true
+      
+      - name: Terraform Init
+        id: init
+        run: terraform init -input=false -backend-config="path=envs/prod" envs/prod
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -out=tfplan -no-color -input=false -detailed-exitcode envs/prod
+        continue-on-error: true
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -input=false -auto-approve envs/prod
