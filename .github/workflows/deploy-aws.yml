@@ -9,13 +9,16 @@ jobs:
   create_infrastructure:
     name: Create Infrastructure on AWS
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./envs/prod
 
     env:
       AWS_REGION: ${{ secrets.AWS_REGION }}
       PROJECT_NAME: ${{ secrets.PROJECT_NAME }}
       RABBITMQ_DEFAULT_USER: ${{ secrets.RABBITMQ_DEFAULT_USER }}
       RABBITMQ_DEFAULT_PASS: ${{ secrets.RABBITMQ_DEFAULT_PASS }}
-  
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -33,20 +36,19 @@ jobs:
 
       - name: Terraform Format
         id: fmt
-        run: terraform fmt -check -chdir=envs/prod
+        run: terraform fmt -check
         continue-on-error: true
-
+      
       - name: Terraform Init
         id: init
-        run: terraform init -input=false -chdir=envs/prod
+        run: terraform init -input=false
 
       - name: Terraform Plan
         id: plan
-        run: terraform plan -out=tfplan -no-color -input=false -detailed-exitcode -chdir=envs/prod
+        run: terraform plan -out=tfplan -no-color -input=false
         continue-on-error: true
 
       - name: Terraform Apply
         id: apply
-        run: terraform apply -input=false -auto-approve -chdir=envs/prod
-      - name: Checkout code
-        uses: actions/checkout@v4
+        run: terraform apply -input=false -auto-approve     
+  
