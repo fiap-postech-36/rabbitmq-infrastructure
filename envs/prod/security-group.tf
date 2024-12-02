@@ -1,6 +1,6 @@
 resource "aws_security_group" "sg_cluster" {
-  name        = "${var.project_name}-sg"
-  vpc_id      = module.vpc.vpc_id
+  name   = "${var.project_name}-sg"
+  vpc_id = module.vpc.vpc_id
 }
 
 resource "aws_security_group_rule" "cluster_in" {
