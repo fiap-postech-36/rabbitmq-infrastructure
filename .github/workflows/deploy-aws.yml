@@ -49,11 +49,4 @@ jobs:
       - name: Apply all resources after create vps
         id: apply-all
         run: |
-          terraform apply -input=false -auto-approve -var "project_name=${{ secrets.PROJECT_NAME }}" -var "RABBITMQ_DEFAULT_USER=${{ secrets.RABBITMQ_DEFAULT_USER }}" -var "RABBITMQ_DEFAULT_PASS=${{ secrets.RABBITMQ_DEFAULT_PASS }}" || {
-            if grep -q "ResourceInUseException: Cluster already exists" terraform.log; then
-              echo "Cluster already exists. Skip step."
-            else
-              exit 1
-            fi
-          }
-        shell: bash
+          terraform apply -input=false -auto-approve -var "project_name=${{ secrets.PROJECT_NAME }}" -var "RABBITMQ_DEFAULT_USER=${{ secrets.RABBITMQ_DEFAULT_USER }}" -var "RABBITMQ_DEFAULT_PASS=${{ secrets.RABBITMQ_DEFAULT_PASS }}"

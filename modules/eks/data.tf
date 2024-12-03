@@ -1,8 +1,8 @@
-data "aws_subnets" "subnets"{
-    filter {
-        name = "vpc-id"
-        values = ["${var.vpc_id}"]
-    }
+data "aws_subnets" "subnets" {
+  filter {
+    name   = "vpc-id"
+    values = ["${var.vpc_id}"]
+  }
 }
 
 data "aws_subnet" "subnet" {
@@ -13,3 +13,5 @@ data "aws_subnet" "subnet" {
 data "aws_iam_role" "name" {
   name = "LabRole"
 }
+
+data "aws_eks_clusters" "clusters" {}
