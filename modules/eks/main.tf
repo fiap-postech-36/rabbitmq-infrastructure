@@ -1,15 +1,3 @@
-data "aws_subnets" "subnets"{
-    filter {
-        name = "vpc-id"
-        values = ["${var.vpc_id}"]
-    }
-}
-
-data "aws_subnet" "subnet" {
-  for_each = toset(data.aws_subnets.subnets.ids)
-  id       = each.value
-}
-
 resource "aws_eks_cluster" "cluster-created" {
   name     = "${var.cluster_name}-cluster"
   role_arn = data.aws_iam_role.name.arn
@@ -26,6 +14,7 @@ resource "aws_eks_cluster" "cluster-created" {
   }
   lifecycle {
     prevent_destroy = false
+    ignore_changes = [name]
   }
 }
 
@@ -44,10 +33,6 @@ resource "aws_eks_node_group" "node_cluster_group" {
   }
   instance_types = ["t2.micro"]
   disk_size      = 50
-  ami_type = "AL2_x86_64"
-  depends_on = [aws_eks_cluster.cluster-created]
-}
-
-data "aws_iam_role" "name" {
-  name = "LabRole"
+  ami_type       = "AL2_x86_64"
+  depends_on     = [aws_eks_cluster.cluster-created]
 }
