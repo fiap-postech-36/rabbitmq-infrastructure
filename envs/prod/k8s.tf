@@ -1,6 +1,4 @@
 resource "kubernetes_deployment" "rabbitmq" {
-  count = length(kubernetes_config_map.rabbit-configmap) > 0 ? 1 : 0
-
   metadata {
     name = var.project_name
     labels = {
@@ -27,7 +25,7 @@ resource "kubernetes_deployment" "rabbitmq" {
           name  = "${var.project_name}-container"
           env_from {
             config_map_ref {
-              name = kubernetes_config_map.rabbit-configmap[0].metadata[0].name
+              name = kubernetes_config_map.rabbit-configmap.metadata[0].name
             }
           }
           resources {
@@ -45,8 +43,6 @@ resource "kubernetes_deployment" "rabbitmq" {
 }
 
 resource "kubernetes_service" "LoadBalancer" {
-  count = length(data.kubernetes_service.existing_service) == 0 ? 1 : 0
-
   metadata {
     name = "load-balancer-${var.project_name}"
   }
@@ -69,8 +65,6 @@ resource "kubernetes_service" "LoadBalancer" {
 }
 
 resource "kubernetes_config_map" "rabbit-configmap" {
-  count = length(data.kubernetes_config_map.existing_configmap) == 0 ? 1 : 0
-
   metadata {
     name = "${var.project_name}-configmap"
   }
@@ -78,17 +72,5 @@ resource "kubernetes_config_map" "rabbit-configmap" {
   data = {
     RABBITMQ_DEFAULT_USER : var.RABBITMQ_DEFAULT_USER
     RABBITMQ_DEFAULT_PASS : var.RABBITMQ_DEFAULT_PASS
-  }
-}
-
-data "kubernetes_service" "existing_service" {
-  metadata {
-    name = "load-balancer-${var.project_name}"
-  }
-}
-
-data "kubernetes_config_map" "existing_configmap" {
-  metadata {
-    name = "${var.project_name}-configmap"
   }
 }
